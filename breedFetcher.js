@@ -1,21 +1,17 @@
 const request = require('request');
-const args = process.argv.splice(2);
 
 
-request(`https://api.thecatapi.com/v1/breeds/search?q=${args[0]}`, (error, respode, body) => {
+const fetchBreedDescription = (breedName, callback) => {
 
-  //if there is an error return the error
-  if (error) {
-    return console.log(error);
-  }
+  request(`https://api.thecatapi.com/v1/breeds/search?q=${breedName}`, (error, response, body) => {
 
-  //type of body is a string
-  const data = JSON.parse(body); // type of data is an object
+    if (error) return callback(error, null);
+    
+    if (body === '[]') return callback(error, 'The breed you typed does not exist.');
+    
+    let data = JSON.parse(body)[0].description;
+    callback(error, data);
+  });
+};
 
-  //if body is empty square brackets string.
-  if (body === '[]') return console.log('The breed you typed does not exist.')
-
-  //if body is not just '[]'
-  if (body) return console.log(data[0].description);
-  
-});
+module.exports = { fetchBreedDescription };
